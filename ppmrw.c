@@ -13,10 +13,27 @@
  * Entry point for the program
  * Mainly does usage checking and setup for file input/output
  */
+
+enum FileType {
+    PP3_PPM = 3,
+    PP6_PPM = 6
+};
+
 int main(int argc, char **argv)
 {
     if (argc != 4) {
         fprintf(stderr, "Usage: %s [3 or 6] [input] [output]\n", argv[0]);
+        exit(1);
+    }
+
+    int format = atoi(argv[1]);
+    char *in_fname = argv[2];
+    char *out_fname = argv[3];
+
+    FILE *input = fopen(in_fname, "r");
+
+    if (!input) {
+        fprintf(stderr, "Error: unable to open input file (%s)!\n", in_fname);
         exit(1);
     }
 
