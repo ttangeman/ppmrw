@@ -10,15 +10,18 @@
 #include <stdbool.h>
 
 /*
- * Entry point for the program
- * Mainly does usage checking and setup for file input/output
+ * I create this enumeration to give context to the "3" or "6" passed in to the
+ * main function. Can refer to them by an human-understandable name this way.
  */
-
 enum FileType {
     PP3_PPM = 3,
     PP6_PPM = 6
 };
 
+/*
+ * Entry point for the program
+ * Mainly does usage checking and setup for file input/output
+ */
 int main(int argc, char **argv)
 {
     if (argc != 4) {
