@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "ppmrw.h"
+
 /*
  * Entry point for the program
  * Mainly does usage checking and setup for file input/output
