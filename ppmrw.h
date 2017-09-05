@@ -11,15 +11,20 @@ typedef int32_t  s32;
 typedef int64_t  s64;
 
 enum ppm_format {
+    P1_PPM = 1,
+    P2_PPM = 2,
     P3_PPM = 3,
-    P6_PPM = 6
+    P4_PPM = 4,
+    P5_PPM = 5,
+    P6_PPM = 6,
+    P7_PPM = 7
 };
 
 struct pixel {
-    u8 r, g, b, a;
+    u8 r, g, b;
 };
 
-struct ppm {
+struct ppm_pixmap {
     enum ppm_format format;
     u32 width, height, color_range;
     struct pixel *pixmap;
