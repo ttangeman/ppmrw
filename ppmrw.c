@@ -12,13 +12,17 @@
 #include "ppmrw.h"
 
 /*
- * No need to include this in the header because it is only used
- * for the static function "get_file_contents"
+ * No need to include these in the header because they are only used
+ * for internal (static) functions.
+ * ==============================================
  */
+
 struct file_contents {
     void *memory;
     size_t size;
 };
+
+// ==============================================
 
 /*
  * Reads a file into memory and returns a struct with a pointer
@@ -38,6 +42,18 @@ static struct file_contents get_file_contents(FILE *fh)
 
     struct file_contents result = {memory, size};
     return result;
+}
+
+static bool valid_magic_number(struct file_contents fc)
+{
+    char *ascii_mem = (char *)fc.memory;
+    char magic[2] = {ascii_mem[0], ascii_mem[1]};
+
+    if (strncmp(magic, "P3", sizeof("P3")) == 0) ||
+       (strncmp(magic, "P6", sizeof("P6")) == 0)
+        return true;
+    else
+        return false;
 }
 
 /*
