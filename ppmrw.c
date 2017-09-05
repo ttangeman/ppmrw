@@ -72,5 +72,6 @@ int main(int argc, char **argv)
     struct file_contents fc = get_file_contents(input);
     fclose(input);
 
+    free(fc.memory);
     return 0;
 }
