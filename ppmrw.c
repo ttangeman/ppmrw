@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "ppmrw.h"
 
@@ -44,13 +45,13 @@ static struct file_contents get_file_contents(FILE *fh)
     return result;
 }
 
-static bool valid_magic_number(struct file_contents fc)
+static inline bool valid_magic_number(struct file_contents fc)
 {
     char *ascii_mem = (char *)fc.memory;
     char magic[2] = {ascii_mem[0], ascii_mem[1]};
 
-    if (strncmp(magic, "P3", sizeof("P3")) == 0) ||
-       (strncmp(magic, "P6", sizeof("P6")) == 0)
+    if (strncmp(magic, "P3", sizeof("P3")) == 0 ||
+        strncmp(magic, "P6", sizeof("P6")) == 0)
         return true;
     else
         return false;
