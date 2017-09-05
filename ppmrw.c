@@ -34,7 +34,7 @@ static struct file_contents get_file_contents(FILE *fh)
     rewind(fh);
 
     memory = malloc(size);
-    fwrite(memory, 1, size, fh);
+    fread(memory, 1, size, fh);
 
     struct file_contents result = {memory, size};
     return result;
