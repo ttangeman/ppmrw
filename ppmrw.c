@@ -28,8 +28,14 @@ int main(int argc, char **argv)
 
     FILE *input = fopen(in_fname, "r");
 
+    if (format != PP3_PPM || format != PP6_PPM) {
+        fprintf(stderr, "Error: invalid format \"%d\" specified!\n", format);
+        fprintf(stderr, "Valid formats: 3, 6\n");
+        exit(1);
+    }
+
     if (!input) {
-        fprintf(stderr, "Error: unable to open input file (%s)!\n", in_fname);
+        fprintf(stderr, "Error: unable to open input file %s!\n", in_fname);
         exit(1);
     }
 
