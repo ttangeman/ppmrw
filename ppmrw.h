@@ -11,8 +11,8 @@ typedef int32_t  s32;
 typedef int64_t  s64;
 
 enum ppm_format {
-    PP3_PPM = 3,
-    PP6_PPM = 6
+    P3_PPM = 3,
+    P6_PPM = 6
 };
 
 struct pixel {
