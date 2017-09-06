@@ -89,6 +89,12 @@ int main(int argc, char **argv)
     struct file_contents fc = get_file_contents(input);
     fclose(input);
 
+    if (!valid_magic_number(fc)) {
+        fprintf(stderr, "Error: file does not have a valid format specified in header\n");
+        free(fc.memory);
+        exit(EXIT_FAILURE);
+    }
+
     free(fc.memory);
     return 0;
 }
