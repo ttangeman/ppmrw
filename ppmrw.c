@@ -18,9 +18,20 @@
  * ==============================================
  */
 
+enum {
+    INIT_FAILED = 0,
+    INIT_SUCCESS = 0xff
+};
+
 struct file_contents {
     void *memory;
     size_t size;
+};
+
+struct ppm_header {
+    enum ppm_format format;
+    u32 width, height;
+    u32 max_color_depth;
 };
 
 // ==============================================
@@ -45,16 +56,26 @@ static struct file_contents get_file_contents(FILE *fh)
     return result;
 }
 
-static inline bool valid_magic_number(struct file_contents fc)
+/*
+ * Initializes a PPM header struct with the values in the header:
+ * format - Either P3 or P6
+ * width, height - the width and height of the pixmap
+ * max_color_depth - the maximum value for the RGB colors (e.g. 255)
+ */
+static int init_ppm_header(struct ppm_header *hdr, struct file_contents fc)
 {
     char *ascii_mem = (char *)fc.memory;
     char magic[2] = {ascii_mem[0], ascii_mem[1]};
+    u32 offset = 0;
 
-    if (strncmp(magic, "P3", sizeof("P3")) == 0 ||
-        strncmp(magic, "P6", sizeof("P6")) == 0)
-        return true;
+    if (strncmp(magic, "P3", sizeof("P3")) == 0)
+        hdr->format = P3_PPM;
+    else if (strncmp(magic, "P6", sizeof("P6")) == 0)
+        hdr->format = P6_PPM;
     else
-        return false;
+       return INIT_FAILED;
+
+    return INIT_SUCCESS;
 }
 
 /*
@@ -89,10 +110,16 @@ int main(int argc, char **argv)
     struct file_contents fc = get_file_contents(input);
     fclose(input);
 
-    if (!valid_magic_number(fc)) {
-        fprintf(stderr, "Error: file does not have a valid format specified in header\n");
+    struct ppm_header hdr = {0};
+
+    if (!init_ppm_header(&hdr, fc)) {
         free(fc.memory);
+        fprintf(stderr, "Error: unable to parse input file header.\n");
         exit(EXIT_FAILURE);
+    } else if (hdr.format == format) {
+        printf("Nothing to be changed. File is already in P%d format.\n", format);
+    } else {
+        printf("Changed file from P%d to P%d.\n", hdr.format, format);
     }
 
     free(fc.memory);
