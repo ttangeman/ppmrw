@@ -38,6 +38,8 @@ struct file_contents get_file_contents(FILE *fh)
  * format - Either P3 or P6
  * width, height - the width and height of the pixmap
  * max_color_depth - the maximum value for the RGB colors (e.g. 255)
+ *
+ * Returns a status code identifying the error.
  */
 int init_ppm_pixmap(struct ppm_pixmap *pm, void *file_memory)
 {
@@ -49,7 +51,7 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, void *file_memory)
     else if (strncmp(magic, "P6", sizeof("P6")) == 0)
         pm->format = P6_PPM;
     else
-       return INIT_FAILED;
+       return INVALID_FORMAT;
 
     u32 offset = 0;
     // Read until we reach the line with the width, height.
@@ -58,6 +60,28 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, void *file_memory)
     printf("%s", ascii_mem + offset);
 
     return INIT_SUCCESS;
+}
+
+/*
+ * This function handles the error messages for the error_code
+ * from the init_ppm_pixamp function.
+ */
+static void handle_init_error_code(int error_code)
+{
+    switch (error_code) {
+        case INVALID_FORMAT:
+            fprintf(stderr, "Error: input file has an invalid format specified in header.\n");
+        break;
+        case INVALID_WIDTH:
+            fprintf(stderr, "Error: input file has an invalid width specified in header.\n");
+        break;
+        case INVALID_HEIGHT:
+            fprintf(stderr, "Error: input file has an invalid height specified in header.\n");
+        break;
+        case INVALID_COLOR_DEPTH:
+            fprintf(stderr, "Error: input file has an invalid color depth specified in header.\n");
+        break;
+    }
 }
 
 /*
@@ -93,10 +117,11 @@ int main(int argc, char **argv)
     fclose(input);
 
     struct ppm_pixmap pm = {0};
+    int status_code = init_ppm_pixmap(&pm, fc.memory);
 
-    if (!init_ppm_pixmap(&pm, fc.memory)) {
+    if (status_code != INIT_SUCCESS) {
+        handle_init_error_code(init_code);
         free(fc.memory);
-        fprintf(stderr, "Error: unable to parse input file header.\n");
         exit(EXIT_FAILURE);
     } else if (pm.format == format) {
         printf("Nothing to be changed. File is already in P%d format.\n", format);
