@@ -19,5 +19,8 @@ Example usage:
 This will convert the cutecat_binary.ppm file to a new PPM file
 "cutecat_ascii.ppm" in the P3 format.
 
+# Known Issues
+None at this time.
+
 # Author
 Trey Tangeman <tct49@nau.edu>
