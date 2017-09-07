@@ -1,5 +1,9 @@
 #pragma once
 
+/*
+ * Typedefs/Enums
+ * ==============
+ */
 typedef uint8_t     u8;
 typedef uint16_t    u16;
 typedef uint32_t    u32;
@@ -25,6 +29,10 @@ enum {
     INIT_SUCCESS = 0xff
 };
 
+/*
+ * Struct definitions
+ * ==================
+ */
 struct pixel {
     u8 r, g, b;
 };
@@ -35,4 +43,15 @@ struct ppm_pixmap {
     u32 max_color_depth;        // 0 to max_color_depth for RGB
     struct pixel *pixmap;
 };
+
+struct file_contents {
+    void *memory;
+    size_t size;
+};
+
+/*
+ * Function definitions
+ * ====================
+ */
+struct file_contents get_file_contents(FILE *fh);
 

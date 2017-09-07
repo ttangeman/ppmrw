@@ -14,23 +14,10 @@
 #include "ppmrw.h"
 
 /*
- * No need to include these in the header because they are only used
- * for internal (static) functions.
- * ==============================================
- */
-
-struct file_contents {
-    void *memory;
-    size_t size;
-};
-
-// ==============================================
-
-/*
  * Reads a file into memory and returns a struct with a pointer
  * to the memory and the file size.
  */
-static struct file_contents get_file_contents(FILE *fh)
+struct file_contents get_file_contents(FILE *fh)
 {
     void *memory;
     size_t size;
@@ -47,7 +34,7 @@ static struct file_contents get_file_contents(FILE *fh)
 }
 
 /*
- * Initializes a PPM header struct with the values in the header:
+ * Initializes a PPM pixmap struct with the values in the header:
  * format - Either P3 or P6
  * width, height - the width and height of the pixmap
  * max_color_depth - the maximum value for the RGB colors (e.g. 255)
@@ -116,8 +103,6 @@ int main(int argc, char **argv)
     } else {
         printf("Changed file from P%d to P%d.\n", pm.format, format);
     }
-
-    //TODO: print error if image is not 8-bit format
 
     free(fc.memory);
     return 0;
