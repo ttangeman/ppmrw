@@ -24,9 +24,13 @@ enum ppm_format {
     P7_PPM = 7
 };
 
+// These values are used for the init_ppm_pixmap function
 enum {
-    INIT_FAILED = 0,
-    INIT_SUCCESS = 0xff
+    INIT_SUCCESS
+    INVALID_FORMAT,
+    INVALID_WIDTH,
+    INVALID_HEIGHT,
+    INVALID_COLOR_DEPTH,
 };
 
 /*
@@ -50,8 +54,9 @@ struct file_contents {
 };
 
 /*
- * Function definitions
+ * Function declarations
  * ====================
  */
 struct file_contents get_file_contents(FILE *fh);
+int init_ppm_pixmap(struct ppm_pixmap *pm, void *file_memory);
 
