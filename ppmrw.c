@@ -117,6 +117,8 @@ int main(int argc, char **argv)
         printf("Changed file from P%d to P%d.\n", pm.format, format);
     }
 
+    //TODO: print error if image is not 8-bit format
+
     free(fc.memory);
     return 0;
 }
