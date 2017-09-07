@@ -41,9 +41,9 @@ struct file_contents get_file_contents(FILE *fh)
  *
  * Returns a status code identifying the error.
  */
-int init_ppm_pixmap(struct ppm_pixmap *pm, void *file_memory)
+int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
 {
-    char *ascii_mem = (char *)file_memory;
+    char *ascii_mem = (char *)fc.memory;
     char magic[2] = {ascii_mem[0], ascii_mem[1]};
 
     if (strncmp(magic, "P3", sizeof("P3")) == 0)
@@ -57,6 +57,15 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, void *file_memory)
     // Read until we reach the line with the width, height.
     while (!isspace(ascii_mem[offset++]));
 
+    while (offset < fc.size) {
+        // Advance through all of the comments
+        while (true)
+            if (ascii_mem[offset] == '#')
+                while(ascii_mem[offset++] != '\n');
+            else
+                break;
+    }
+
     printf("%s", ascii_mem + offset);
 
     return INIT_SUCCESS;
@@ -64,7 +73,7 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, void *file_memory)
 
 /*
  * This function handles the error messages for the error_code
- * from the init_ppm_pixamp function.
+ * from the init_ppm_pixmap function.
  */
 static void handle_init_error_code(int error_code)
 {
@@ -117,7 +126,7 @@ int main(int argc, char **argv)
     fclose(input);
 
     struct ppm_pixmap pm = {0};
-    int status_code = init_ppm_pixmap(&pm, fc.memory);
+    int status_code = init_ppm_pixmap(&pm, fc);
 
     if (status_code != INIT_SUCCESS) {
         handle_init_error_code(status_code);
