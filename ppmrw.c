@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "ppmrw.h"
 
@@ -70,10 +71,9 @@ static int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
 
     u32 offset = 0;
     // Read until we reach the line with the width, height.
-    while (!isspace(ascii_mem[offset]))
-        ascii_mem[offset++];
+    while (!isspace(ascii_mem[offset++]));
 
-    printf("%s\n", ascii_mem + offset);
+    printf("%s", ascii_mem + offset);
 
     return INIT_SUCCESS;
 }
