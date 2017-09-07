@@ -58,5 +58,5 @@ struct file_contents {
  * ====================
  */
 struct file_contents get_file_contents(FILE *fh);
-int init_ppm_pixmap(struct ppm_pixmap *pm, void *file_memory);
+int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc);
 
