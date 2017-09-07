@@ -28,12 +28,6 @@ struct file_contents {
     size_t size;
 };
 
-struct ppm_header {
-    enum ppm_format format;
-    u32 width, height;
-    u32 max_color_depth;
-};
-
 // ==============================================
 
 /*
@@ -62,18 +56,24 @@ static struct file_contents get_file_contents(FILE *fh)
  * width, height - the width and height of the pixmap
  * max_color_depth - the maximum value for the RGB colors (e.g. 255)
  */
-static int init_ppm_header(struct ppm_header *hdr, struct file_contents fc)
+static int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
 {
     char *ascii_mem = (char *)fc.memory;
     char magic[2] = {ascii_mem[0], ascii_mem[1]};
-    u32 offset = 0;
 
     if (strncmp(magic, "P3", sizeof("P3")) == 0)
-        hdr->format = P3_PPM;
+        pm->format = P3_PPM;
     else if (strncmp(magic, "P6", sizeof("P6")) == 0)
-        hdr->format = P6_PPM;
+        pm->format = P6_PPM;
     else
        return INIT_FAILED;
+
+    u32 offset = 0;
+    // Read until we reach the line with the width, height.
+    while (!isspace(ascii_mem[offset]))
+        ascii_mem[offset++];
+
+    printf("%s\n", ascii_mem + offset);
 
     return INIT_SUCCESS;
 }
@@ -110,16 +110,16 @@ int main(int argc, char **argv)
     struct file_contents fc = get_file_contents(input);
     fclose(input);
 
-    struct ppm_header hdr = {0};
+    struct ppm_pixmap pm = {0};
 
-    if (!init_ppm_header(&hdr, fc)) {
+    if (!init_ppm_pixmap(&pm, fc)) {
         free(fc.memory);
         fprintf(stderr, "Error: unable to parse input file header.\n");
         exit(EXIT_FAILURE);
-    } else if (hdr.format == format) {
+    } else if (pm.format == format) {
         printf("Nothing to be changed. File is already in P%d format.\n", format);
     } else {
-        printf("Changed file from P%d to P%d.\n", hdr.format, format);
+        printf("Changed file from P%d to P%d.\n", pm.format, format);
     }
 
     free(fc.memory);
