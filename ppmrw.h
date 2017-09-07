@@ -20,6 +20,11 @@ enum ppm_format {
     P7_PPM = 7
 };
 
+enum {
+    INIT_FAILED = 0,
+    INIT_SUCCESS = 0xff
+};
+
 struct pixel {
     u8 r, g, b;
 };

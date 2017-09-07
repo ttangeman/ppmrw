@@ -19,11 +19,6 @@
  * ==============================================
  */
 
-enum {
-    INIT_FAILED = 0,
-    INIT_SUCCESS = 0xff
-};
-
 struct file_contents {
     void *memory;
     size_t size;
@@ -57,9 +52,9 @@ static struct file_contents get_file_contents(FILE *fh)
  * width, height - the width and height of the pixmap
  * max_color_depth - the maximum value for the RGB colors (e.g. 255)
  */
-static int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
+int init_ppm_pixmap(struct ppm_pixmap *pm, void *file_memory)
 {
-    char *ascii_mem = (char *)fc.memory;
+    char *ascii_mem = (char *)file_memory;
     char magic[2] = {ascii_mem[0], ascii_mem[1]};
 
     if (strncmp(magic, "P3", sizeof("P3")) == 0)
@@ -112,7 +107,7 @@ int main(int argc, char **argv)
 
     struct ppm_pixmap pm = {0};
 
-    if (!init_ppm_pixmap(&pm, fc)) {
+    if (!init_ppm_pixmap(&pm, fc.memory)) {
         free(fc.memory);
         fprintf(stderr, "Error: unable to parse input file header.\n");
         exit(EXIT_FAILURE);
