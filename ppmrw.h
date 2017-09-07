@@ -25,12 +25,12 @@ enum ppm_format {
 };
 
 // These values are used for the init_ppm_pixmap function
-enum {
-    INIT_SUCCESS
+enum status_code {
+    INIT_SUCCESS,
     INVALID_FORMAT,
     INVALID_WIDTH,
     INVALID_HEIGHT,
-    INVALID_COLOR_DEPTH,
+    INVALID_COLOR_DEPTH
 };
 
 /*

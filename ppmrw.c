@@ -120,7 +120,7 @@ int main(int argc, char **argv)
     int status_code = init_ppm_pixmap(&pm, fc.memory);
 
     if (status_code != INIT_SUCCESS) {
-        handle_init_error_code(init_code);
+        handle_init_error_code(status_code);
         free(fc.memory);
         exit(EXIT_FAILURE);
     } else if (pm.format == format) {
