@@ -46,12 +46,13 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
     char *ascii_mem = (char *)fc.memory;
     char magic[2] = {ascii_mem[0], ascii_mem[1]};
 
-    if (strncmp(magic, "P3", sizeof("P3")) == 0)
+    if (strncmp(magic, "P3", sizeof("P3")) == 0) {
         pm->format = P3_PPM;
-    else if (strncmp(magic, "P6", sizeof("P6")) == 0)
+    } else if (strncmp(magic, "P6", sizeof("P6")) == 0) {
         pm->format = P6_PPM;
-    else
+    } else {
        return INVALID_FORMAT;
+    }
 
     u32 offset = 0;
     // Read until we reach the line with the width, height.
@@ -59,11 +60,13 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
 
     while (offset < fc.size) {
         // Advance through all of the comments
-        while (true)
-            if (ascii_mem[offset] == '#')
+        while (true) {
+            if (ascii_mem[offset] == '#') {
                 while(ascii_mem[offset++] != '\n');
-            else
+            } else {
                 break;
+            }
+        }
     }
 
     printf("%s", ascii_mem + offset);
