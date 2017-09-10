@@ -34,6 +34,14 @@ struct file_contents get_file_contents(FILE *fh)
 }
 
 /*
+ * Wrapper function for advancing until a whitespace.
+ */
+static void read_until_whitespace(char *ppm_memory, u32 *offset)
+{
+    while (!isspace(ppm_memory[(*offset)++]));
+}
+
+/*
  * Wrapper function for advancing through whitespace.
  */
 static void read_whitespace(char *ppm_memory, u32 *offset)
@@ -77,7 +85,7 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
 
     u32 offset = 0;
 
-    while (!isspace(ascii_mem[offset++]));
+    read_until_whitespace(ascii_mem, &offset);
     read_whitespace(ascii_mem, &offset);
     read_comments(ascii_mem, &offset);
 
@@ -85,7 +93,7 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
 
     // Advance until whitespace and copy the characters passed over into a new
     // string. This will give us the width.
-    while (!isspace(ascii_mem[offset++]));
+    read_until_whitespace(ascii_mem, &offset);
     char ascii_width[offset - start];
     strncpy(ascii_width, ascii_mem + start, offset - start);
     ascii_width[offset - start] = '\0';
@@ -94,7 +102,7 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
     read_comments(ascii_mem, &offset);
 
     start = offset;
-    while (!isspace(ascii_mem[offset++]));
+    read_until_whitespace(ascii_mem, &offset);
     char ascii_height[offset - start];
     strncpy(ascii_height, ascii_mem + start, offset - start);
     ascii_height[offset - start] = '\0';
@@ -103,7 +111,7 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
     read_comments(ascii_mem, &offset);
 
     start = offset;
-    while (!isspace(ascii_mem[offset++]));
+    read_until_whitespace(ascii_mem, &offset);
     char ascii_depth[offset - start];
     strncpy(ascii_depth, ascii_mem + start, offset - start);
     ascii_depth[offset - start] = '\0';
@@ -112,7 +120,7 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
     read_comments(ascii_mem, &offset);
 
 
-    //printf("%s", ascii_mem + offset);
+    printf("%s", ascii_mem + offset);
 
     return INIT_SUCCESS;
 }
