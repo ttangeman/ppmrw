@@ -55,20 +55,17 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
     }
 
     u32 offset = 0;
-    // Read until we reach the line with the width, height.
+    // Read until we reach the next line
     while (!isspace(ascii_mem[offset++]));
 
-    while (offset < fc.size) {
-        // Advance through all of the comments
-        while (true) {
-            if (ascii_mem[offset] == '#') {
-                while(ascii_mem[offset++] != '\n');
-            } else {
-                break;
-            }
-        }
+    // Advance through all of the comments
+    while (ascii_mem[offset] == '#') {
+        while(ascii_mem[offset++] != '\n');
     }
 
+    if (isspace(ascii_mem[offset])) {
+        while (!isspace(ascii_mem[offset++]));
+    }
     printf("%s", ascii_mem + offset);
 
     return INIT_SUCCESS;
@@ -129,7 +126,7 @@ int main(int argc, char **argv)
     fclose(input);
 
     struct ppm_pixmap pm = {0};
-    int status_code = init_ppm_pixmap(&pm, fc);
+    s32 status_code = init_ppm_pixmap(&pm, fc);
 
     if (status_code != INIT_SUCCESS) {
         handle_init_error_code(status_code);
