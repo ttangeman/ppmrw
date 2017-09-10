@@ -93,6 +93,8 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
 
     // Advance until whitespace and copy the characters passed over into a new
     // string. This will give us the width.
+    // offset - start = starting and ending character of the value
+    // the strncpy is equivalent to looping from start to offset in ascii_mem
     read_until_whitespace(ascii_mem, &offset);
     char ascii_width[offset - start];
     strncpy(ascii_width, ascii_mem + start, offset - start);
@@ -119,8 +121,63 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
     read_whitespace(ascii_mem, &offset);
     read_comments(ascii_mem, &offset);
 
+    u32 width = atoi(ascii_width);
+    u32 height = atoi(ascii_height);
+    u32 max_color_depth = atoi(ascii_depth);
 
-    printf("%s", ascii_mem + offset);
+    if (max_color_depth != MAX_BITS_PER_CHANNEL) {
+        return INVALID_COLOR_DEPTH;
+    }
+
+    struct pixel *pixmap = malloc(sizeof(struct pixel) * (width * height));
+    u32 pm_index = 0;
+    // To get the Pixmap, it will differ depending on whether its P3 or P6.
+    // For P3, we will need to do some conversions because it is in ASCII.
+    // However, P6 we can just cast straight to a pointer of pixels.
+    if (pm->format == P3_PPM) {
+        while (offset < fc.size) {
+            // TODO: DEBUG
+            start = offset;
+            read_until_whitespace(ascii_mem, &offset);
+            char ar[offset - start];
+            strncpy(ascii_height, ascii_mem + start, offset - start);
+            ascii_height[offset - start] = '\0';
+            pixmap[pm_index].r = atoi(ar);
+            read_whitespace(ascii_mem, &offset);
+
+            start = offset;
+            read_until_whitespace(ascii_mem, &offset);
+            char ag[offset - start];
+            strncpy(ascii_height, ascii_mem + start, offset - start);
+            ascii_height[offset - start] = '\0';
+            pixmap[pm_index].g = atoi(ag);
+            read_whitespace(ascii_mem, &offset);
+
+            start = offset;
+            read_until_whitespace(ascii_mem, &offset);
+            char ab[offset - start];
+            strncpy(ascii_height, ascii_mem + start, offset - start);
+            ascii_height[offset - start] = '\0';
+            pixmap[pm_index].b = atoi(ab);
+            read_whitespace(ascii_mem, &offset);
+
+            pm_index++;
+        }
+    } else {
+        pixmap = (struct pixel *)(fc.memory + offset);
+    }
+
+    pm->width = width;
+    pm->height = height;
+    pm->max_color_depth = max_color_depth;
+    pm->pixmap = pixmap;
+
+#if 0
+    printf("%d, %d, %d\n", width, height, max_color_depth);
+    for(int i = 0; i < 255*2; i++) {
+        printf("r:%d, g:%d, b;%d", pixmap[i].r, pixmap[i].g, pixmap[i].b);
+    }
+#endif
 
     return INIT_SUCCESS;
 }
