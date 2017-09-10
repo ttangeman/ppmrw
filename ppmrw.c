@@ -65,6 +65,9 @@ static void read_comments(char *ppm_memory, u32 *offset)
 /*
  * This function is a wrapper around getting an ASCII value and converting
  * it to binary. The ASCII value should be delimited by whitespace!
+ *
+ * IMPORTANT: this function also handles the proceeding whitespaces and comments,
+ * for ease of use.
  */
 static int get_binary_value(char *ppm_memory, u32 *offset_ptr)
 {
@@ -114,14 +117,20 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
     read_comments(ascii_mem, &offset);
 
     // Parse out the width, height, and bits per channel from the header
-    u32 width = get_binary_value(ascii_mem, &offset);
-    u32 height = get_binary_value(ascii_mem, &offset);
-    u32 max_color_depth = get_binary_value(ascii_mem, &offset);
+    // NOTE: these functions account for whitespace and comments!
+    s32 width = get_binary_value(ascii_mem, &offset);
+    s32 height = get_binary_value(ascii_mem, &offset);
+    s32 bits_per_channel = get_binary_value(ascii_mem, &offset);
 
-    if (max_color_depth != MAX_BITS_PER_CHANNEL) {
-        return INVALID_COLOR_DEPTH;
+    // Error checking for negative widths and heights
+    // and bits_per_channel != 255
+    if (width < 0) {
+        return INVALID_WIDTH;
+    } else if (height < 0) {
+        return INVALID_HEIGHT;
+    } else if (bits_per_channel != MAX_BITS_PER_CHANNEL) {
+        return INVALID_BITS_PER_CHANNEL;
     }
-
 
     return INIT_SUCCESS;
 }
@@ -142,8 +151,8 @@ static void handle_init_error_code(int error_code)
         case INVALID_HEIGHT:
             fprintf(stderr, "Error: input file has an invalid height specified in header.\n");
         break;
-        case INVALID_COLOR_DEPTH:
-            fprintf(stderr, "Error: input file has an invalid color depth specified in header.\n");
+        case INVALID_BITS_PER_CHANNEL:
+            fprintf(stderr, "Error: input file has an invalid bits per channel specified in header.\n");
         break;
     }
 }
