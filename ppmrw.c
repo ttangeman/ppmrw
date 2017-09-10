@@ -34,6 +34,27 @@ struct file_contents get_file_contents(FILE *fh)
 }
 
 /*
+ * Wrapper function for advancing through whitespace.
+ */
+static void read_whitespace(char *ppm_memory, u32 *offset)
+{
+    while (isspace(ppm_memory[*offset])) {
+        *(offset)++;
+    }
+}
+
+/*
+ * This function is a wrapper around the operation of advancing through all
+ * comments until we hit the next line.
+ */
+static void read_comments(char *ppm_memory, u32 *offset)
+{
+    while (ppm_memory[*offset] == '#') {
+        while (ppm_memory[(*offset)++] != '\n');
+    }
+}
+
+/*
  * Initializes a PPM pixmap struct with the values in the header:
  * format - Either P3 or P6
  * width, height - the width and height of the pixmap
@@ -55,17 +76,29 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
     }
 
     u32 offset = 0;
-    // Read until we reach the next line
+
     while (!isspace(ascii_mem[offset++]));
+    read_whitespace(ascii_mem, &offset);
+    read_comments(ascii_mem, &offset);
 
-    // Advance through all of the comments
-    while (ascii_mem[offset] == '#') {
-        while(ascii_mem[offset++] != '\n');
-    }
+    u32 start = offset;
 
-    if (isspace(ascii_mem[offset])) {
-        while (!isspace(ascii_mem[offset++]));
-    }
+    // Advance until whitespace and copy the characters passed over into a new
+    // string. This will give us the width.
+    while (!isspace(ascii_mem[offset++]));
+    char ascii_width[offset - start];
+    strncpy(ascii_width, ascii_mem + start, offset - start);
+    ascii_width[offset - start] = '\0';
+
+    read_whitespace(ascii_mem, &offset);
+    read_comments(ascii_mem, &offset);
+
+    start = offset;
+    while (!isspace(ascii_mem[offset++]));
+    char ascii_height[offset - start];
+    strncpy(ascii_height, ascii_mem + start, offset - start);
+    ascii_height[offset - start] = '\0';
+
     printf("%s", ascii_mem + offset);
 
     return INIT_SUCCESS;
