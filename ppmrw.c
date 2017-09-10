@@ -99,7 +99,20 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
     strncpy(ascii_height, ascii_mem + start, offset - start);
     ascii_height[offset - start] = '\0';
 
-    printf("%s", ascii_mem + offset);
+    read_whitespace(ascii_mem, &offset);
+    read_comments(ascii_mem, &offset);
+
+    start = offset;
+    while (!isspace(ascii_mem[offset++]));
+    char ascii_depth[offset - start];
+    strncpy(ascii_depth, ascii_mem + start, offset - start);
+    ascii_depth[offset - start] = '\0';
+
+    read_whitespace(ascii_mem, &offset);
+    read_comments(ascii_mem, &offset);
+
+
+    //printf("%s", ascii_mem + offset);
 
     return INIT_SUCCESS;
 }
