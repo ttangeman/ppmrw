@@ -14,6 +14,8 @@ typedef int16_t     s16;
 typedef int32_t     s32;
 typedef int64_t     s64;
 
+#define MAX_BITS_PER_CHANNEL    255
+
 enum ppm_format {
     P1_PPM = 1,
     P2_PPM = 2,
