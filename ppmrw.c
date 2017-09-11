@@ -236,7 +236,6 @@ void write_p3_pixmap(struct ppm_pixmap pm, FILE *fh)
  */
 void write_p6_pixmap(struct ppm_pixmap pm, FILE *fh)
 {
-
     fwrite(pm.pixmap, 1, sizeof(struct pixel) * pm.width * pm.height, fh);
 }
 
