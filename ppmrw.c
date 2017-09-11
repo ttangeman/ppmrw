@@ -178,6 +178,69 @@ static void handle_init_error_code(int error_code)
 }
 
 /*
+ * Writes the PPM header. NOTE: It takes format as a parameter,
+ * so it can be extensible to formats other than P3/P6
+ */
+void write_ppm_header(struct ppm_pixmap pm, FILE *fh, u32 fmt)
+{
+    char magic[2];
+    magic[0] = 'P';
+    char format[2];
+    sprintf(format,"%d", fmt);
+    strcat(magic, format);
+
+    char width[32];
+    char height[32];
+    char bits_per_channel[32];
+    // This is the most portable way to do itoa
+    sprintf(width, "%d", pm.width);
+    sprintf(height, "%d", pm.height);
+    sprintf(bits_per_channel, "%d", pm.bits_per_channel);
+
+    fputs(magic, fh);
+    fputc('\n', fh);
+    fputs(width, fh);
+    fputc(' ', fh);
+    fputs(height, fh);
+    fputc('\n', fh);
+    fputs(bits_per_channel, fh);
+    fputc('\n', fh);
+}
+
+/*
+ * Writes a P3 PPM pixmap into a file
+ */
+void write_p3_pixmap(struct ppm_pixmap pm, FILE *fh)
+{
+    u32 num_pixels = pm.width * pm.height;
+    char r[32];
+    char g[32];
+    char b[32];
+
+    for (int i = 0; i < num_pixels; i++) {
+        sprintf(r, "%d", pm.pixmap[i].r);
+        sprintf(g, "%d", pm.pixmap[i].g);
+        sprintf(b, "%d", pm.pixmap[i].b);
+
+        fputs(r, fh);
+        fputc(' ', fh);
+        fputs(g, fh);
+        fputc(' ', fh);
+        fputs(b, fh);
+        fputc(' ', fh);
+    }
+}
+
+/*
+ * Writes a P6 PPM pixmap into a file
+ */
+void write_p6_pixmap(struct ppm_pixmap pm, FILE *fh)
+{
+
+    fwrite(pm.pixmap, 1, sizeof(struct pixel) * pm.width * pm.height, fh);
+}
+
+/*
  * ---- Entry point for the program ----
  * Usage and error checking is done in the main function, before
  * it begins processing the file.
@@ -211,7 +274,6 @@ int main(int argc, char **argv)
 
     struct ppm_pixmap pm = {0};
     s32 status_code = init_ppm_pixmap(&pm, fc);
-    free(fc.memory);
 
     if (status_code != INIT_SUCCESS) {
         handle_init_error_code(status_code);
@@ -226,53 +288,18 @@ int main(int argc, char **argv)
         printf("Changed file from P%d to P%d.\n", pm.format, format);
         FILE *output = fopen(out_fname, "w");
 
-        // The format we want to convert to
-        char *fmt = (pm.format == P6_PPM ? "P3" : "P6");
+        write_ppm_header(pm, output, format);
 
-        char width[32];
-        char height[32];
-        char bits_per_channel[32];
-        // This is the most portable way to do itoa
-        sprintf(width, "%d", pm.width);
-        sprintf(height, "%d", pm.height);
-        sprintf(bits_per_channel, "%d", pm.bits_per_channel);
-
-        fputs(fmt, output);
-        fputc('\n', output);
-        fputs(width, output);
-        fputc(' ', output);
-        fputs(height, output);
-        fputc('\n', output);
-        fputs(bits_per_channel, output);
-        fputc('\n', output);
-
-        // Only for going to P3 do we need to write out ASCII
-        // This is the "conversion" part of the code.
         if (pm.format == P6_PPM) {
-            u32 num_pixels = pm.width * pm.height;
-            char r[32];
-            char g[32];
-            char b[32];
-
-            for (int i = 0; i < num_pixels; i++) {
-                sprintf(r, "%d", pm.pixmap[i].r);
-                sprintf(g, "%d", pm.pixmap[i].g);
-                sprintf(b, "%d", pm.pixmap[i].b);
-
-                fputs(r, output);
-                fputc(' ', output);
-                fputs(g, output);
-                fputc(' ', output);
-                fputs(b, output);
-                fputc(' ', output);
-            }
+            write_p3_pixmap(pm, output);
         } else {
-            fwrite(pm.pixmap, 1, sizeof(struct pixel) * pm.width * pm.height, output);
+            write_p6_pixmap(pm, output);
         }
 
         fclose(output);
     }
 
+    free(fc.memory);
     free(pm.pixmap);
 
     return 0;
