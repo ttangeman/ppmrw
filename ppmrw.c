@@ -213,7 +213,6 @@ int main(int argc, char **argv)
     if (status_code != INIT_SUCCESS) {
         handle_init_error_code(status_code);
         free(fc.memory);
-        free(pm.pixmap);
         exit(EXIT_FAILURE);
     } else if (pm.format == format) {
         printf("Nothing to be changed. File is already in P%d format.\n", format);
@@ -223,6 +222,43 @@ int main(int argc, char **argv)
         fclose(output);
     } else {
         printf("Changed file from P%d to P%d.\n", pm.format, format);
+        FILE *output = fopen(out_fname, "w");
+
+        // The format we want to convert to
+        char *fmt = (pm.format == 6 ? "P3" : "P6");
+        char *width, *height, *bits_per_channel;
+        // This is the most portable way to do itoa
+        sprintf(width, "%d", pm.width);
+        sprintf(height, "%d", pm.height);
+        sprintf(bits_per_channel, "%d", pm.bits_per_channel);
+
+        fputs(width, output);
+        fputs(height, output);
+        fputs(bits_per_channel, output);
+
+        // Only for going to P3 do we need to write out ASCII
+        // This is the "conversion" part of the code.
+        if (pm.format == P6_PPM) {
+            u32 num_pixels = pm.width * pm.height;
+            char *ascii_output;
+            for (int i = 0; i < num_pixels; i++) {
+                char *r, *g, *b;
+                sprintf(r, "%d", pm.pixmap[i].r);
+                sprintf(g, "%d", pm.pixmap[i].g);
+                sprintf(b, "%d", pm.pixmap[i].b);
+
+                fputs(r, output);
+                fputc(' ', output);
+                fputs(g, output);
+                fputc(' ', output);
+                fputs(b, output);
+                fputc(' ', output);
+            }
+        } else {
+            fwrite(pm.pixmap, 1, sizeof(struct pixel) * pm.width * pm.height, output);
+        }
+
+        fclose(output);
     }
 
     free(fc.memory);
