@@ -66,7 +66,7 @@ struct file_contents {
  */
 struct file_contents get_file_contents(FILE *fh);
 int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc);
-void write_ppm_header(struct ppm_pixmap *pm, FILE *fh, u32 fmt);
-void write_p3_pixmap(struct ppm_pixmap *pm, FILE *fh);
-void write_p6_pixmap(struct ppm_pixmap *pm, FILE *fh);
+void write_ppm_header(struct ppm_pixmap pm, FILE *fh, u32 fmt);
+void write_p3_pixmap(struct ppm_pixmap pm, FILE *fh);
+void write_p6_pixmap(struct ppm_pixmap pm, FILE *fh);
 
