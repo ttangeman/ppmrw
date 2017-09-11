@@ -46,8 +46,8 @@ struct pixel {
 struct ppm_pixmap {
     enum ppm_format format;     // P3 or P6 for pixmaps
     u32 width, height;
-    u32 bits_per_channel;        // 0 to bits_per_channel for RGB
-    struct pixel *pixmap;
+    u32 bits_per_channel;       // 0 to bits_per_channel for RGB
+    struct pixel *pixmap;       // NOTE: allocated during init, so needs to be freed
 };
 
 struct file_contents {
