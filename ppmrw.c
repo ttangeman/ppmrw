@@ -16,6 +16,7 @@
 /*
  * Reads a file into memory and returns a struct with a pointer
  * to the memory and the file size.
+ * NOTE: user is responsible for freeing the memory
  */
 struct file_contents get_file_contents(FILE *fh)
 {
@@ -132,6 +133,23 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
         return INVALID_BITS_PER_CHANNEL;
     }
 
+    struct pixel *pixels = malloc(sizeof(struct pixel) * (width * height));
+    u32 pix_index = 0;
+
+    if (pm->format == P3_PPM) {
+        // Get the binary values of the ASCII pixels
+        while (offset < fc.size) {
+            pixels[pix_index].r = get_binary_value(ascii_mem, &offset);
+            pixels[pix_index].g = get_binary_value(ascii_mem, &offset);
+            pixels[pix_index].b = get_binary_value(ascii_mem, &offset);
+        }
+    } else {
+        // Cast the binary blob into a pixel array
+        pixels = (struct pixel *)(fc.memory + offset);
+    }
+
+    printf("%d %d %d\n", pixels[0].r, pixels[0].g, pixels[0].b);
+
     return INIT_SUCCESS;
 }
 
@@ -195,6 +213,7 @@ int main(int argc, char **argv)
     if (status_code != INIT_SUCCESS) {
         handle_init_error_code(status_code);
         free(fc.memory);
+        free(pm.pixmap);
         exit(EXIT_FAILURE);
     } else if (pm.format == format) {
         printf("Nothing to be changed. File is already in P%d format.\n", format);
@@ -207,5 +226,6 @@ int main(int argc, char **argv)
     }
 
     free(fc.memory);
+    free(pm.pixmap);
     return 0;
 }
