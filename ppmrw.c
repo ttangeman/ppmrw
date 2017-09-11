@@ -121,21 +121,21 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
     // NOTE: these functions account for whitespace and comments!
     s32 width = get_binary_value(ascii_mem, &offset);
     s32 height = get_binary_value(ascii_mem, &offset);
-    s32 bits_per_channel = get_binary_value(ascii_mem, &offset);
+    s32 maxval = get_binary_value(ascii_mem, &offset);
 
     // Error checking for negative widths and heights
-    // and bits_per_channel != 255
+    // and maxval != 255
     if (width < 0) {
         return INVALID_WIDTH;
     } else if (height < 0) {
         return INVALID_HEIGHT;
-    } else if (bits_per_channel != MAX_BITS_PER_CHANNEL) {
-        return INVALID_BITS_PER_CHANNEL;
+    } else if (maxval != MAX_maxval) {
+        return INVALID_MAXVAL;
     }
 
     pm->width = width;
     pm->height = height;
-    pm->bits_per_channel = bits_per_channel;
+    pm->maxval = maxval;
     pm->pixmap = malloc(sizeof(struct pixel) * (width * height));
 
     struct pixel *pixels = pm->pixmap;
@@ -171,7 +171,7 @@ static void handle_init_error_code(int error_code)
         case INVALID_HEIGHT:
             fprintf(stderr, "Error: input file has an invalid height specified in header.\n");
         break;
-        case INVALID_BITS_PER_CHANNEL:
+        case INVALID_MAXVAL:
             fprintf(stderr, "Error: input file has an invalid bits per channel specified in header.\n");
         break;
     }
@@ -191,11 +191,11 @@ void write_ppm_header(struct ppm_pixmap pm, FILE *fh, u32 fmt)
 
     char width[32];
     char height[32];
-    char bits_per_channel[32];
+    char maxval[32];
     // This is the most portable way to do itoa
     sprintf(width, "%d", pm.width);
     sprintf(height, "%d", pm.height);
-    sprintf(bits_per_channel, "%d", pm.bits_per_channel);
+    sprintf(maxval, "%d", pm.maxval);
 
     fputs(magic, fh);
     fputc('\n', fh);
@@ -203,7 +203,7 @@ void write_ppm_header(struct ppm_pixmap pm, FILE *fh, u32 fmt)
     fputc(' ', fh);
     fputs(height, fh);
     fputc('\n', fh);
-    fputs(bits_per_channel, fh);
+    fputs(maxval, fh);
     fputc('\n', fh);
 }
 
@@ -247,6 +247,7 @@ void write_p6_pixmap(struct ppm_pixmap pm, FILE *fh)
 int main(int argc, char **argv)
 {
     if (argc != 4) {
+        fprintf(stderr, "Error: invalid number of arguments\n");
         fprintf(stderr, "Usage: %s [3|6] [input] [output]\n", argv[0]);
         exit(EXIT_FAILURE);
     }
