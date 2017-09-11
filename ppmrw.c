@@ -198,7 +198,10 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     } else if (pm.format == format) {
         printf("Nothing to be changed. File is already in P%d format.\n", format);
-        // TODO: Output the file with the output name
+
+        FILE *output = fopen(out_fname, "w");
+        fwrite(fc.memory, 1, fc.size, output);
+        fclose(output);
     } else {
         printf("Changed file from P%d to P%d.\n", pm.format, format);
     }
