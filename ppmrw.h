@@ -14,7 +14,7 @@ typedef int16_t     s16;
 typedef int32_t     s32;
 typedef int64_t     s64;
 
-#define MAX_BITS_PER_CHANNEL    255
+#define MAX_BITS_PER_CHANNEL   255
 
 enum ppm_format {
     P1_PPM = 1,
@@ -61,4 +61,7 @@ struct file_contents {
  */
 struct file_contents get_file_contents(FILE *fh);
 int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc);
+void write_ppm_header(struct ppm_pixmap *pm, FILE *fh, u32 fmt);
+void write_p3_pixmap(struct ppm_pixmap *pm, FILE *fh);
+void write_p6_pixmap(struct ppm_pixmap *pm, FILE *fh);
 
