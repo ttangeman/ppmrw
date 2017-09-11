@@ -133,22 +133,24 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
         return INVALID_BITS_PER_CHANNEL;
     }
 
-    struct pixel *pixels = malloc(sizeof(struct pixel) * (width * height));
-    u32 pix_index = 0;
+    pm->width = width;
+    pm->height = height;
+    pm->bits_per_channel = bits_per_channel;
+    pm->pixmap = malloc(sizeof(struct pixel) * (width * height));
+
+    struct pixel *pixels = pm->pixmap;
 
     if (pm->format == P3_PPM) {
         // Get the binary values of the ASCII pixels
-        while (offset < fc.size) {
-            pixels[pix_index].r = get_binary_value(ascii_mem, &offset);
-            pixels[pix_index].g = get_binary_value(ascii_mem, &offset);
-            pixels[pix_index].b = get_binary_value(ascii_mem, &offset);
+        for (int i = 0; i < (width * height); i++) {
+            pixels[i].r = get_binary_value(ascii_mem, &offset);
+            pixels[i].g = get_binary_value(ascii_mem, &offset);
+            pixels[i].b = get_binary_value(ascii_mem, &offset);
         }
     } else {
         // Cast the binary blob into a pixel array
-        pixels = (struct pixel *)(fc.memory + offset);
+        memcpy(pm->pixmap, fc.memory + offset, sizeof(struct pixel) * width * height);
     }
-
-    printf("%d %d %d\n", pixels[0].r, pixels[0].g, pixels[0].b);
 
     return INIT_SUCCESS;
 }
@@ -209,10 +211,10 @@ int main(int argc, char **argv)
 
     struct ppm_pixmap pm = {0};
     s32 status_code = init_ppm_pixmap(&pm, fc);
+    free(fc.memory);
 
     if (status_code != INIT_SUCCESS) {
         handle_init_error_code(status_code);
-        free(fc.memory);
         exit(EXIT_FAILURE);
     } else if (pm.format == format) {
         printf("Nothing to be changed. File is already in P%d format.\n", format);
@@ -225,24 +227,34 @@ int main(int argc, char **argv)
         FILE *output = fopen(out_fname, "w");
 
         // The format we want to convert to
-        char *fmt = (pm.format == 6 ? "P3" : "P6");
-        char *width, *height, *bits_per_channel;
+        char *fmt = (pm.format == P6_PPM ? "P3" : "P6");
+
+        char width[32];
+        char height[32];
+        char bits_per_channel[32];
         // This is the most portable way to do itoa
         sprintf(width, "%d", pm.width);
         sprintf(height, "%d", pm.height);
         sprintf(bits_per_channel, "%d", pm.bits_per_channel);
 
+        fputs(fmt, output);
+        fputc('\n', output);
         fputs(width, output);
+        fputc(' ', output);
         fputs(height, output);
+        fputc('\n', output);
         fputs(bits_per_channel, output);
+        fputc('\n', output);
 
         // Only for going to P3 do we need to write out ASCII
         // This is the "conversion" part of the code.
         if (pm.format == P6_PPM) {
             u32 num_pixels = pm.width * pm.height;
-            char *ascii_output;
+            char r[32];
+            char g[32];
+            char b[32];
+
             for (int i = 0; i < num_pixels; i++) {
-                char *r, *g, *b;
                 sprintf(r, "%d", pm.pixmap[i].r);
                 sprintf(g, "%d", pm.pixmap[i].g);
                 sprintf(b, "%d", pm.pixmap[i].b);
@@ -261,7 +273,7 @@ int main(int argc, char **argv)
         fclose(output);
     }
 
-    free(fc.memory);
     free(pm.pixmap);
+
     return 0;
 }
