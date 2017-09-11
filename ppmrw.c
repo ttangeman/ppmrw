@@ -129,7 +129,7 @@ int init_ppm_pixmap(struct ppm_pixmap *pm, struct file_contents fc)
         return INVALID_WIDTH;
     } else if (height < 0) {
         return INVALID_HEIGHT;
-    } else if (maxval != INVALID_MAXVAL) {
+    } else if (maxval != MAX_CHANNEL_VAL) {
         return INVALID_MAXVAL;
     }
 
