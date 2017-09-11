@@ -32,7 +32,7 @@ enum status_code {
     INVALID_FORMAT,
     INVALID_WIDTH,
     INVALID_HEIGHT,
-    INVALID_BITS_PER_CHANNEL
+    INVALID_MAXVAL
 };
 
 /*
@@ -43,10 +43,15 @@ struct pixel {
     u8 r, g, b;
 };
 
+struct pixmap {
+    u32 width, height;
+    struct pixel *pixmap;
+};
+
 struct ppm_pixmap {
     enum ppm_format format;     // P3 or P6 for pixmaps
     u32 width, height;
-    u32 bits_per_channel;       // 0 to bits_per_channel for RGB
+    u32 maxval;       // 0 to bits_per_channel for RGB
     struct pixel *pixmap;       // NOTE: allocated during init, so needs to be freed
 };
 
