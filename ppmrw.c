@@ -4,12 +4,6 @@
  * Description: ppmrw is able to read, write, and convert between files in the
  * PPM P3/P6 format.
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-#include <ctype.h>
 
 #include "ppmrw.h"
 
