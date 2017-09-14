@@ -5,6 +5,10 @@
  * PPM P3/P6 format.
  */
 
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+
 #include "ppmrw.h"
 
 /*
@@ -238,6 +242,7 @@ void write_p6_pixmap(struct ppm_pixmap pm, FILE *fh)
  * Usage and error checking is done in the main function, before
  * it begins processing the file.
  */
+#ifdef PPMRW_MAIN
 int main(int argc, char **argv)
 {
     if (argc != 4) {
@@ -298,3 +303,4 @@ int main(int argc, char **argv)
 
     return 0;
 }
+#endif
