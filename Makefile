@@ -3,6 +3,10 @@ all: ppmrw.c
 
 obj: ppmrw.c
 	gcc -c ppmrw.c
+	ar -cvq libppmrw.a ppmrw.o
+	rm ppmrw.o
+	mkdir lib
+	mv libppmrw.a lib
 
 clean:
-	rm -rf ppmrw *.o *.swp
+	rm -rf ppmrw *.o *.swp *.a
