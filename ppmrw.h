@@ -43,20 +43,21 @@ enum status_code {
  * Struct definitions
  * ==================
  */
+typedef struct pixel pixel;
 struct pixel {
     u8 r, g, b;
 };
 
 struct pixmap {
     u32 width, height;
-    struct pixel *pixmap;
+    pixel *pixels;
 };
 
 struct ppm_pixmap {
     enum ppm_format format;     // P3 or P6 for pixmaps
     u32 width, height;
     u32 maxval;       // 0 to bits_per_channel for RGB
-    struct pixel *pixmap;       // NOTE: allocated during init, so needs to be freed
+    pixel *pixmap;       // NOTE: allocated during init, so needs to be freed
 };
 
 struct file_contents {
