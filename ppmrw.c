@@ -46,7 +46,7 @@ static void read_until_whitespace(char *ppm_memory, u32 *offset)
 static void read_whitespace(char *ppm_memory, u32 *offset)
 {
     while (isspace(ppm_memory[*offset])) {
-        *(offset)++;
+        (*offset)++;
     }
 }
 
@@ -181,11 +181,8 @@ static void handle_init_error_code(int error_code)
  */
 void write_ppm_header(struct ppm_pixmap pm, FILE *fh, u32 fmt)
 {
-    char magic[2];
-    magic[0] = 'P';
-    char format[2];
-    sprintf(format,"%d", fmt);
-    strcat(magic, format);
+    char magic[3];
+    sprintf(magic,"P%d", fmt);
 
     char width[32];
     char height[32];
@@ -195,14 +192,7 @@ void write_ppm_header(struct ppm_pixmap pm, FILE *fh, u32 fmt)
     sprintf(height, "%d", pm.height);
     sprintf(maxval, "%d", pm.maxval);
 
-    fputs(magic, fh);
-    fputc('\n', fh);
-    fputs(width, fh);
-    fputc(' ', fh);
-    fputs(height, fh);
-    fputc('\n', fh);
-    fputs(maxval, fh);
-    fputc('\n', fh);
+    fprintf(fh, "%s\n%s %s\n%s\n", magic, width, height, maxval);
 }
 
 /*
@@ -220,12 +210,7 @@ void write_p3_pixmap(struct ppm_pixmap pm, FILE *fh)
         sprintf(g, "%d", pm.pixmap[i].g);
         sprintf(b, "%d", pm.pixmap[i].b);
 
-        fputs(r, fh);
-        fputc(' ', fh);
-        fputs(g, fh);
-        fputc(' ', fh);
-        fputs(b, fh);
-        fputc(' ', fh);
+        fprintf(fh, "%s %s %s ", r, g, b);
     }
 }
 
